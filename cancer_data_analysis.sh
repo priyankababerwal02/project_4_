@@ -1,30 +1,27 @@
 #!/bin/bash
 
-tar -zxf tcga_data.tar.gz
+tar -zxf tcga_data.tar.gz -k
 
-
-echo "Condition,Value" > data.csv   #changed the column names to be simpler
-
+echo "Condition,Value" > data.csv
 GENE="NKX2-1"
 
-cat gdc_sample_sheet.tsv | while IFS=$'\t' read id filename project sample_id type rest
+cat gdc_sample_sheet.tsv | while IFS=$'\t' read id filename cat data_type project case_id sample_id type rest
 do
     
-    if [ "$id" == "File ID" ]; then   # Removing header
+    if [ "$id" == "File ID" ]; then
         continue
     fi
 
-   
+
     if [ "$type" == "Primary Tumor" ] || [ "$type" == "Solid Tissue Normal" ]; then
         
         filepath="$id/$filename"
         
-        
         if [ -f "$filepath" ]; then
-            
-            tpm=$(grep "$GENE" "$filepath" | cut -f7)      # 'cut -f7' takes the 7th tab-separated column (tpm_unstranded)
-            
+            tpm=$(grep "$GENE" "$filepath" | cut -f7)
             echo "$type,$tpm" >> data.csv
         fi
     fi
 done
+
+echo "Check data.csv now."
